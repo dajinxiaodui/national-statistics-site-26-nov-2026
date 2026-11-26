@@ -1,31 +1,48 @@
-// NationScope boot: a tiny hash router. Routes:
-//   #/                 home — charts and the full table
-//   #/country/<code>   one country's profile
-//   #/compare          side-by-side comparison
+// NationScope router. Hash routes keep the whole site in one static page:
+//   #/                 overview: world strip, sortable table, chart
+//   #/country/<CODE>   one country's profile
+//   #/compare?c=A,B    side-by-side comparison (checkboxes also drive it)
 //   #/rankings         leaderboards by indicator
-//   #/about            method and sources
-// No network requests are made at any point; all content is in data.js.
+//   #/about            methods and sources
 
-function currentParts() {
-  const hash = window.location.hash || "#/";
-  const path = hash.replace(/^#\/?/, "");
-  return path === "" ? [""] : path.split("/");
-}
+import { renderAbout, renderCompare, renderCountry, renderHome, renderRankings } from './views.js';
 
-function setActiveNav(parts) {
-  const page = parts[0] || "";
-  document.querySelectorAll("nav a").forEach((a) => {
-    const target = a.getAttribute("data-page");
-    a.classList.toggle("active", target === page);
+const page = document.getElementById('app');
+const navLinks = document.querySelectorAll('.site-nav a');
+
+function markNav(routeName) {
+  navLinks.forEach((a) => {
+    a.classList.toggle('active', a.dataset.route === routeName);
   });
 }
 
 function route() {
-  const parts = currentParts();
-  setActiveNav(parts);
-  renderRoute(parts);
+  const raw = location.hash.replace(/^#/, '') || '/';
+  const [path, query] = raw.split('?');
+  const parts = path.split('/').filter(Boolean);
   window.scrollTo(0, 0);
+
+  if (parts.length === 0) {
+    markNav('home');
+    renderHome(page);
+  } else if (parts[0] === 'country' && parts[1]) {
+    markNav('home');
+    renderCountry(page, parts[1]);
+  } else if (parts[0] === 'compare') {
+    markNav('compare');
+    const preset = new URLSearchParams(query || '').get('c') || '';
+    renderCompare(page, preset);
+  } else if (parts[0] === 'rankings') {
+    markNav('rankings');
+    renderRankings(page);
+  } else if (parts[0] === 'about') {
+    markNav('about');
+    renderAbout(page);
+  } else {
+    markNav('home');
+    renderHome(page);
+  }
 }
 
-window.addEventListener("hashchange", route);
-document.addEventListener("DOMContentLoaded", route);
+window.addEventListener('hashchange', route);
+route();

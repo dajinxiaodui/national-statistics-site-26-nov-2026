@@ -1,165 +1,162 @@
-// NationScope data: twelve of the world's most populous countries.
-// Every figure was checked against the World Bank's World Development
-// Indicators (WDI) and the UN Statistics Division in November 2026.
-// Figures are shown rounded on the site; the stored values below are the
-// published values (population and GDP in the units the WDI publishes).
-// GDP per capita marked "derived" is GDP divided by population, the same
-// arithmetic the WDI uses for its own per-capita series.
-// Population density is likewise population divided by total area.
-//
-// Sources, per indicator:
-//   Population 2024 — WDI SP.POP.TOTL (World Bank values, retrieved Nov 2026)
-//   GDP 2024, current US$ — WDI NY.GDP.MKTP.CD
-//   GDP per capita 2024 — WDI NY.GDP.PCAP.CD, or derived where noted
-//   Life expectancy 2023 — WDI SP.DYN.LE00.IN
-//   Real GDP growth 2024 — WDI NY.GDP.MKTP.KD.ZG
-//   Total area — UN Statistics Division / CIA World Factbook country lists
-//   World totals — WDI world aggregates for 2024 (population, GDP)
+// NationScope data layer.
+// One record per country, seven headline indicators, plus the metadata that
+// says where each figure comes from and which year it describes. All values
+// are stored at full precision; rounding happens only in the formatters.
 
-const COUNTRIES = [
-  {
-    code: "ind", name: "India", region: "Asia", capital: "New Delhi",
-    population: 1450935791, gdpBillionsUsd: 3912.7, gdpPerCapitaUsd: 2697,
-    gdpPerCapitaDerived: false, lifeExpectancy: 72.0, areaKm2: 3287263,
-    gdpGrowthPct: 6.5,
-    blurb: "The world's most populous country since 2023, and its fastest-growing large economy in 2024. More than half of Indians are under 30, and services — above all software and business services — now drive growth alongside manufacturing."
-  },
-  {
-    code: "chn", name: "China", region: "Asia", capital: "Beijing",
-    population: 1408975000, gdpBillionsUsd: 18743.8, gdpPerCapitaUsd: 13303,
-    gdpPerCapitaDerived: false, lifeExpectancy: 78.0, areaKm2: 9596960,
-    gdpGrowthPct: 5.0,
-    blurb: "The world's second-largest economy and its largest manufacturer. China's population has edged down for three straight years, while life expectancy — 78.0 years — now sits close to the level of much richer countries."
-  },
-  {
-    code: "usa", name: "United States", region: "North America", capital: "Washington, D.C.",
-    population: 340110988, gdpBillionsUsd: 29184.9, gdpPerCapitaUsd: 85810,
-    gdpPerCapitaDerived: false, lifeExpectancy: 78.4, areaKm2: 9525067,
-    gdpGrowthPct: 2.8,
-    blurb: "The world's largest economy by a wide margin: about $29.2 trillion in 2024, more than a quarter of world output. GDP per person is the highest of the twelve countries here, yet life expectancy trails Japan by more than five years."
-  },
-  {
-    code: "idn", name: "Indonesia", region: "Asia", capital: "Jakarta",
-    population: 283487931, gdpBillionsUsd: 1396.3, gdpPerCapitaUsd: 4925,
-    gdpPerCapitaDerived: false, lifeExpectancy: 71.2, areaKm2: 1904569,
-    gdpGrowthPct: 5.0,
-    blurb: "The fourth most populous country and the largest economy in South-East Asia, spread across more than 17,000 islands. Steady 5% growth has held for a decade, powered by domestic consumption and nickel, coal and palm-oil exports."
-  },
-  {
-    code: "pak", name: "Pakistan", region: "Asia", capital: "Islamabad",
-    population: 251269164, gdpBillionsUsd: 373.1, gdpPerCapitaUsd: 1485,
-    gdpPerCapitaDerived: false, lifeExpectancy: 67.7, areaKm2: 882363,
-    gdpGrowthPct: 3.2,
-    blurb: "The fifth most populous country, with one of the youngest populations on earth — a median age near 20. Growth rebounded to 3.2% in 2024 after floods and a balance-of-payments crisis shrank the economy the year before."
-  },
-  {
-    code: "nga", name: "Nigeria", region: "Africa", capital: "Abuja",
-    population: 232679478, gdpBillionsUsd: 187.8, gdpPerCapitaUsd: 807,
-    gdpPerCapitaDerived: false, lifeExpectancy: 54.5, areaKm2: 923768,
-    gdpGrowthPct: 3.4,
-    blurb: "Africa's most populous country and its largest oil producer. Dollar GDP fell sharply in 2024 as the naira was devalued — the economy kept growing in real terms (3.4%), but each dollar bought far fewer naira. Life expectancy, 54.5 years, is the lowest of the twelve."
-  },
-  {
-    code: "bra", name: "Brazil", region: "South America", capital: "Brasília",
-    population: 211998573, gdpBillionsUsd: 2179.4, gdpPerCapitaUsd: 10280,
-    gdpPerCapitaDerived: false, lifeExpectancy: 75.9, areaKm2: 8510346,
-    gdpGrowthPct: 3.4,
-    blurb: "South America's giant: the fifth-largest country by area and the tenth-largest economy. Agriculture, iron ore and oil fund a diversified economy, and life expectancy has climbed back to 75.9 years after the pandemic dip."
-  },
-  {
-    code: "bgd", name: "Bangladesh", region: "Asia", capital: "Dhaka",
-    population: 173562364, gdpBillionsUsd: 450.1, gdpPerCapitaUsd: 2593,
-    gdpPerCapitaDerived: false, lifeExpectancy: 74.7, areaKm2: 148460,
-    gdpGrowthPct: 4.2,
-    blurb: "The most densely settled large country on earth — about 1,170 people per square kilometre. Garment exports built one of Asia's steadiest growth records, and life expectancy (74.7 years) now beats far richer neighbours."
-  },
-  {
-    code: "rus", name: "Russia", region: "Europe", capital: "Moscow",
-    population: 143669648, gdpBillionsUsd: 2173.8, gdpPerCapitaUsd: 15131,
-    gdpPerCapitaDerived: true, lifeExpectancy: 73.3, areaKm2: 17098246,
-    gdpGrowthPct: 4.3,
-    blurb: "The largest country on earth by area — more than twice the size of the next — spanning eleven time zones. Wartime spending pushed real growth to 4.3% in 2024, while the population keeps shrinking slowly."
-  },
-  {
-    code: "eth", name: "Ethiopia", region: "Africa", capital: "Addis Ababa",
-    population: 132059767, gdpBillionsUsd: 149.7, gdpPerCapitaUsd: 1134,
-    gdpPerCapitaDerived: true, lifeExpectancy: 67.3, areaKm2: 1104300,
-    gdpGrowthPct: 7.6,
-    blurb: "Africa's second most populous country and its fastest-growing large economy in 2024 at 7.6%. The birr was floated in mid-2024, which cut dollar GDP even as real output surged; four in five Ethiopians still work the land."
-  },
-  {
-    code: "mex", name: "Mexico", region: "North America", capital: "Mexico City",
-    population: 130861007, gdpBillionsUsd: 1856.4, gdpPerCapitaUsd: 14186,
-    gdpPerCapitaDerived: true, lifeExpectancy: 75.1, areaKm2: 1964375,
-    gdpGrowthPct: 1.4,
-    blurb: "The United States' largest trading partner since 2023, with factories along the northern border feeding American supply chains. Growth cooled to 1.4% in 2024, and life expectancy (75.1 years) is still recovering from the pandemic."
-  },
-  {
-    code: "jpn", name: "Japan", region: "Asia", capital: "Tokyo",
-    population: 123975371, gdpBillionsUsd: 4027.6, gdpPerCapitaUsd: 32487,
-    gdpPerCapitaDerived: false, lifeExpectancy: 84.0, areaKm2: 377975,
-    gdpGrowthPct: 0.1,
-    blurb: "The longest-lived large nation on earth: 84.0 years at birth. Japan's population has fallen every year since 2009 and nearly three in ten residents are over 65 — the oldest society in this set, and the fourth-largest economy."
-  }
-];
-
-// World aggregates for the same reference years (WDI world totals).
-const WORLD = {
-  population2024: 8141808945,
-  gdpTrillionsUsd2024: 111.3,
-  lifeExpectancy2023: 73.3
+export const WORLD = {
+  population: 8141808945,
+  gdp: 111326000000000,
+  lifeExpectancy: 73.3,
 };
 
-// Indicator metadata: key, label, unit, and how to format a value.
-const INDICATORS = [
-  { key: "population", label: "Population", unit: "people, 2024", format: fmtPeople, higherBetter: null },
-  { key: "gdp", label: "GDP", unit: "current US$, 2024", format: fmtMoney, higherBetter: null },
-  { key: "gdpPerCapita", label: "GDP per capita", unit: "current US$, 2024", format: fmtDollars, higherBetter: null },
-  { key: "lifeExpectancy", label: "Life expectancy", unit: "years at birth, 2023", format: fmtYears, higherBetter: true },
-  { key: "area", label: "Total area", unit: "km²", format: fmtArea, higherBetter: null },
-  { key: "density", label: "Population density", unit: "people per km², 2024", format: fmtDensity, higherBetter: null },
-  { key: "gdpGrowth", label: "Real GDP growth", unit: "% per year, 2024", format: fmtGrowth, higherBetter: true }
+// calculated: true means the figure is derived on this site (GDP / population,
+// or population / area) rather than read straight off a published series.
+export const INDICATORS = [
+  {
+    key: 'population', label: 'Population', unit: 'people', year: 2024,
+    source: 'World Bank, World Development Indicators', series: 'SP.POP.TOTL',
+    blurb: 'Everyone usually resident in the country, counted at mid-year.',
+  },
+  {
+    key: 'gdp', label: 'GDP', unit: 'current US$', year: 2024,
+    source: 'World Bank, World Development Indicators', series: 'NY.GDP.MKTP.CD',
+    blurb: 'The total value of goods and services produced, in current US dollars.',
+  },
+  {
+    key: 'gdpPerCapita', label: 'GDP per capita', unit: 'current US$', year: 2024,
+    source: 'World Bank, World Development Indicators', series: 'NY.GDP.PCAP.CD',
+    blurb: 'GDP divided by population. An average, not what a typical person earns.',
+  },
+  {
+    key: 'lifeExpectancy', label: 'Life expectancy', unit: 'years at birth', year: 2023,
+    source: 'World Bank, World Development Indicators', series: 'SP.DYN.LE00.IN',
+    blurb: 'How long a newborn would live if today\u2019s mortality rates stayed the same.',
+  },
+  {
+    key: 'area', label: 'Total area', unit: 'km\u00B2', year: 2024,
+    source: 'UN Statistics Division; CIA World Factbook country lists', series: '\u2014',
+    blurb: 'Land and inland water area, in square kilometres.',
+  },
+  {
+    key: 'density', label: 'Population density', unit: 'people per km\u00B2', year: 2024,
+    source: 'Calculated on this site: 2024 population \u00F7 total area', series: '\u2014',
+    blurb: 'How crowded the map looks on average. Deserts and cities average out.',
+  },
+  {
+    key: 'growth', label: 'Real GDP growth', unit: '% per year', year: 2024,
+    source: 'World Bank, World Development Indicators', series: 'NY.GDP.MKTP.KD.ZG',
+    blurb: 'Annual growth of GDP after inflation is taken out.',
+  },
 ];
 
-// --- Derived values (computed from the published figures above) ---------
-function gdpUsd(c) { return c.gdpBillionsUsd * 1e9; }
-function gdpPerCapita(c) { return c.gdpPerCapitaUsd; }
-function density(c) { return c.population / c.areaKm2; }
-function indicatorValue(c, key) {
-  switch (key) {
-    case "population": return c.population;
-    case "gdp": return gdpUsd(c);
-    case "gdpPerCapita": return gdpPerCapita(c);
-    case "lifeExpectancy": return c.lifeExpectancy;
-    case "area": return c.areaKm2;
-    case "density": return density(c);
-    case "gdpGrowth": return c.gdpGrowthPct;
-    default: return null;
-  }
-}
-function rankOf(c, key) {
-  const sorted = [...COUNTRIES].sort((a, b) => indicatorValue(b, key) - indicatorValue(a, key));
-  return sorted.findIndex((x) => x.code === c.code) + 1;
-}
-function countryByCode(code) {
-  return COUNTRIES.find((c) => c.code === code) || null;
+// The twelve most populous countries. gdpPerCapitaCalc marks the three
+// countries whose per-capita figure is GDP \u00F7 population computed here.
+export const COUNTRIES = [
+  { code: 'IND', name: 'India', capital: 'New Delhi', region: 'South Asia',
+    population: 1450935791, gdp: 3912700000000, gdpPerCapita: 2694,
+    lifeExpectancy: 72.0, area: 3287263, growth: 6.5, gdpPerCapitaCalc: false },
+  { code: 'CHN', name: 'China', capital: 'Beijing', region: 'East Asia & Pacific',
+    population: 1408289000, gdp: 18743000000000, gdpPerCapita: 13303,
+    lifeExpectancy: 78.0, area: 9596961, growth: 5.0, gdpPerCapitaCalc: false },
+  { code: 'USA', name: 'United States', capital: 'Washington, D.C.', region: 'North America',
+    population: 340110988, gdp: 29720000000000, gdpPerCapita: 87386,
+    lifeExpectancy: 78.5, area: 9833517, growth: 2.8, gdpPerCapitaCalc: false },
+  { code: 'IDN', name: 'Indonesia', capital: 'Jakarta', region: 'East Asia & Pacific',
+    population: 283487931, gdp: 1396171000000, gdpPerCapita: 4925,
+    lifeExpectancy: 71.1, area: 1904569, growth: 5.0, gdpPerCapitaCalc: false },
+  { code: 'PAK', name: 'Pakistan', capital: 'Islamabad', region: 'South Asia',
+    population: 251269164, gdp: 374843000000, gdpPerCapita: 1492,
+    lifeExpectancy: 67.6, area: 881913, growth: 2.5, gdpPerCapitaCalc: false },
+  { code: 'NGA', name: 'Nigeria', capital: 'Abuja', region: 'Sub-Saharan Africa',
+    population: 232679478, gdp: 187764000000, gdpPerCapita: 807,
+    lifeExpectancy: 54.6, area: 923768, growth: 3.4, gdpPerCapitaCalc: false },
+  { code: 'BRA', name: 'Brazil', capital: 'Bras\u00EDlia', region: 'Latin America & Caribbean',
+    population: 216422446, gdp: 2171000000000, gdpPerCapita: 10031,
+    lifeExpectancy: 75.8, area: 8514877, growth: 3.4, gdpPerCapitaCalc: false },
+  { code: 'BGD', name: 'Bangladesh', capital: 'Dhaka', region: 'South Asia',
+    population: 173562364, gdp: 450316000000, gdpPerCapita: 2595,
+    lifeExpectancy: 74.7, area: 147570, growth: 4.2, gdpPerCapitaCalc: false },
+  { code: 'RUS', name: 'Russia', capital: 'Moscow', region: 'Europe & Central Asia',
+    population: 143526702, gdp: 2173830000000, gdpPerCapita: 15145,
+    lifeExpectancy: 73.1, area: 17098242, growth: 4.1, gdpPerCapitaCalc: true },
+  { code: 'ETH', name: 'Ethiopia', capital: 'Addis Ababa', region: 'Sub-Saharan Africa',
+    population: 129719719, gdp: 163700000000, gdpPerCapita: 1262,
+    lifeExpectancy: 67.3, area: 1104300, growth: 8.1, gdpPerCapitaCalc: true },
+  { code: 'MEX', name: 'Mexico', capital: 'Mexico City', region: 'Latin America & Caribbean',
+    population: 129739759, gdp: 1848000000000, gdpPerCapita: 14244,
+    lifeExpectancy: 75.0, area: 1964375, growth: 1.5, gdpPerCapitaCalc: true },
+  { code: 'JPN', name: 'Japan', capital: 'Tokyo', region: 'East Asia & Pacific',
+    population: 123753041, gdp: 4026400000000, gdpPerCapita: 32537,
+    lifeExpectancy: 84.0, area: 377975, growth: 0.1, gdpPerCapitaCalc: false },
+];
+
+export function countryByCode(code) {
+  return COUNTRIES.find((c) => c.code === String(code).toUpperCase()) || null;
 }
 
-// --- Number formatting --------------------------------------------------
-function fmtInt(n) { return Math.round(n).toLocaleString("en-US"); }
-function fmtPeople(n) {
-  if (n >= 1e9) return (n / 1e9).toFixed(2) + " bn";
-  if (n >= 1e6) return (n / 1e6).toFixed(1) + " m";
-  return fmtInt(n);
+export function indicatorByKey(key) {
+  return INDICATORS.find((i) => i.key === key) || INDICATORS[0];
 }
-function fmtMoney(n) {
-  if (n >= 1e12) return "$" + (n / 1e12).toFixed(2) + " tn";
-  if (n >= 1e9) return "$" + (n / 1e9).toFixed(1) + " bn";
-  return "$" + fmtInt(n);
+
+// The raw numeric value of one indicator for one country. Density is the
+// only figure worked out on the spot; everything else is stored.
+export function valueOf(country, key) {
+  if (key === 'density') return country.population / country.area;
+  return country[key];
 }
-function fmtDollars(n) { return "$" + fmtInt(n); }
-function fmtYears(n) { return n.toFixed(1) + " yrs"; }
-function fmtArea(n) { return fmtInt(n) + " km²"; }
-function fmtDensity(n) { return fmtInt(n) + " /km²"; }
-function fmtGrowth(n) { return (n > 0 ? "+" : "") + n.toFixed(1) + "%"; }
-function fmtPopFull(n) { return fmtInt(n); }
+
+// Rank of a country on one indicator, 1 = highest value, among the twelve.
+export function rankOf(country, key) {
+  const sorted = [...COUNTRIES].sort((a, b) => valueOf(b, key) - valueOf(a, key));
+  return sorted.findIndex((c) => c.code === country.code) + 1;
+}
+
+export function regions() {
+  return [...new Set(COUNTRIES.map((c) => c.region))].sort();
+}
+
+// --- display formatting -------------------------------------------------
+
+const grouped = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+
+export function fmtInt(n) {
+  return grouped.format(Math.round(n));
+}
+
+export function fmtMoney(n) {
+  if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + ' trillion';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + ' billion';
+  return '$' + fmtInt(n);
+}
+
+export function fmtValue(country, key) {
+  const v = valueOf(country, key);
+  switch (key) {
+    case 'population': return fmtInt(v);
+    case 'gdp': return fmtMoney(v);
+    case 'gdpPerCapita': return '$' + fmtInt(v) + (country.gdpPerCapitaCalc ? '*' : '');
+    case 'lifeExpectancy': return v.toFixed(1) + ' years';
+    case 'area': return fmtInt(v) + ' km\u00B2';
+    case 'density': return v.toFixed(1) + ' per km\u00B2';
+    case 'growth': return (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+    default: return String(v);
+  }
+}
+
+// Short axis label for charts: compact, no units prose.
+export function fmtAxis(key, v) {
+  switch (key) {
+    case 'population': return v >= 1e9 ? (v / 1e9).toFixed(2) + 'B' : Math.round(v / 1e6) + 'M';
+    case 'gdp': return '$' + (v / 1e12).toFixed(1) + 'T';
+    case 'gdpPerCapita': return '$' + fmtInt(v);
+    case 'lifeExpectancy': return v.toFixed(1);
+    case 'area': return (v / 1e6).toFixed(1) + 'M km\u00B2';
+    case 'density': return v.toFixed(0);
+    case 'growth': return v.toFixed(1) + '%';
+    default: return String(v);
+  }
+}
+
+export function shareOfWorld(country) {
+  return (country.population / WORLD.population) * 100;
+}
