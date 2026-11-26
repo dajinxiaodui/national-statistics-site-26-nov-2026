@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NationScope — National statistics, plainly presented</title>
+<meta name="description" content="Population, GDP, GDP per capita, life expectancy, area and density for twelve of the world's most populous countries, with every figure sourced and dated.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#/">NationScope</a>
+    <nav aria-label="Main navigation">
+      <a href="#/" data-page="">Countries</a>
+      <a href="#/compare" data-page="compare">Compare</a>
+      <a href="#/rankings" data-page="rankings">Rankings</a>
+      <a href="#/about" data-page="about">Sources</a>
+    </nav>
+  </div>
+</header>
+<main id="view" class="wrap"></main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p><strong>NationScope</strong> — national statistics, plainly presented. Figures: World Bank World Development Indicators (population and GDP 2024; life expectancy 2023) and UN Statistics Division (area). Figures are rounded for display; see <a href="#/about">Sources</a> for series codes and method. This site loads no network resources and works offline.</p>
+    <p class="fineprint">An original site built for the make.fun best national statistics site bounty. Not affiliated with the World Bank or the United Nations.</p>
+  </div>
+</footer>
+<script src="data.js"></script>
+<script src="charts.js"></script>
+<script src="views.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
